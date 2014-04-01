@@ -7,9 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,8 +27,9 @@ import android.provider.Settings.Secure;
 import android.util.Log;
 import android.util.Pair;
 
-import com.github.kevinsawicki.http.HttpRequest;
-import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
+// import com.github.kevinsawicki.http.HttpRequest;
+// import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
+import com.seafile.seadroid2.HttpRequest.HttpRequestException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
@@ -53,9 +59,17 @@ public class SeafConnection {
     }
 
     private void setRequestCommon(HttpRequest req) {
-        req.trustAllCerts().trustAllHosts().
+        // HttpRequest.keepAlive(false);
+        // req.trustAllCerts().trustAllHosts().
+        req.trustAllHosts().
             readTimeout(30000).connectTimeout(15000).
             header("Authorization", "Token " + account.token);
+
+        HttpURLConnection conn = req.getConnection();
+        if (conn instanceof HttpsURLConnection) {
+            HttpsURLConnection sconn = (HttpsURLConnection)conn;
+            sconn.setSSLSocketFactory(SSLTrustManager.instance().getSSLSocketFactory(account));
+        }
     }
 
     private HttpRequest prepareApiPutRequest(String apiPath, Map<String, ?> params) throws IOException {
@@ -74,10 +88,6 @@ public class SeafConnection {
                 connectTimeout(15000);
     }
 
-    private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken) {
-        return prepareApiPostRequest(apiPath, withToken, null);
-    }
-
     /** Prepare a post request.
      *  @param apiPath The path of the http request
      *  @param withToken
@@ -86,9 +96,10 @@ public class SeafConnection {
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params)
                                             throws HttpRequestException {
-        HttpRequest req = HttpRequest.post(account.server + apiPath, params, true).
-                            trustAllCerts().trustAllHosts().
-                            connectTimeout(15000);
+        HttpRequest req = HttpRequest.post(account.server + apiPath, params, true)
+                            // trustAllCerts().trustAllHosts().
+            .trustAllHosts()
+            .connectTimeout(15000);
 
         if (withToken) {
             req.header("Authorization", "Token " + account.token);
@@ -103,8 +114,9 @@ public class SeafConnection {
      * @throws SeafException
      */
     private boolean realLogin() throws SeafException {
+        HttpRequest req = null;
         try {
-            HttpRequest req = prepareApiPostRequest("api2/auth-token/", false, null);
+            req = prepareApiPostRequest("api2/auth-token/", false, null);
             Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
 
             req.form("username", account.email);
@@ -146,6 +158,21 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
+
+            if (req != null) {
+                IOException exception = e.getCause();
+                if (exception instanceof SSLHandshakeException) {
+                    HttpsURLConnection conn = (HttpsURLConnection) req.getConnection();
+                    try {
+                        Certificate[] certs = conn.getServerCertificates();
+                        for (Certificate cert : certs) {
+                            Log.d("SeafileHTTPS", cert.toString());
+                        }
+                    } catch (Exception e1) {
+                    }
+                }
+            }
+
             throw SeafException.networkException;
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,8 +192,9 @@ public class SeafConnection {
     }
 
     public String getRepos() throws SeafException {
+        HttpRequest req = null;
         try {
-            HttpRequest req = prepareApiGetRequest("api2/repos/");
+            req = prepareApiGetRequest("api2/repos/");
             if (req.code() != 200) {
                 if (req.message() == null) {
                     throw SeafException.networkException;
@@ -180,7 +208,11 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            if (e.getCause() instanceof SSLHandshakeException) {
+                throw SeafException.sslException;
+            } else {
+                throw SeafException.networkException;
+            }
         } catch (IOException e) {
             throw SeafException.networkException;
         }
@@ -625,13 +657,14 @@ public class SeafConnection {
                                                  String parentDir,
                                                  String dirName) throws SeafException {
 
+        HttpRequest req = null;
         try {
             String fullPath = Utils.pathJoin(parentDir, dirName);
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("p", fullPath);
             params.put("reloaddir", "true");
 
-            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/dir/", true, params);
+            req = prepareApiPostRequest("api2/repos/" + repoID + "/dir/", true, params);
 
             req.form("operation", "mkdir");
 
@@ -660,6 +693,20 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
+            if (req != null) {
+                IOException exception = e.getCause();
+                if (exception instanceof SSLHandshakeException) {
+                    HttpsURLConnection conn = (HttpsURLConnection) req.getConnection();
+                    try {
+                        Certificate[] certs = conn.getServerCertificates();
+                        for (Certificate cert : certs) {
+                            Log.d("SeafileHTTPS", cert.toString());
+                        }
+                    } catch (Exception e1) {
+                    }
+                }
+            }
+
             throw SeafException.networkException;
         }
     }
