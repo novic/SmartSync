@@ -27,7 +27,7 @@
     <string name="activities">История изменений файлов</string>
     <string name="ok">Ок</string>
     <string name="cancel">Отмена</string>
-    <string name="pick_upload_type">Закачать на сервер</string>
+    <string name="pick_upload_type">Выгрузить на сервер</string>
 
     <string-array name="pick_upload_array">
         <item>Файл</item>
@@ -48,13 +48,13 @@
     <string name="err_server_andress_empty">Адрес сервера не может быть пустым</string>
     <string name="err_login_failed">Ошибка аутентификации</string>
     <string name="err_wrong_user_or_passwd">Введен неверный Email либо Пароль</string>
-    <string name="upload">Закачать на сервер</string>
+    <string name="upload">Выгрузить на сервер</string>
     <string name="uploaded">Закачано на сервер</string>
     <string name="updated">Обновлено</string>
     <string name="upload_failed">Возникла ошибка закачивания на сервер</string>
     <string name="download_failed">Возникла ошибка скачивания с сервера</string>
     <string name="trust_https_server">Используемый сертификат безопасности выпущен недоверенной организацией! Хотите продолжить?</string>
-    <string name="upload_to">Закачать в: </string>
+    <string name="upload_to">Выгрузить в: </string>
     <string name="task_cancel">Отмена</string>
     <string name="task_retry">Повторить попытку</string>
     <string name="task_remove">Удалить</string>
