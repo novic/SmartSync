@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,7 +42,9 @@ import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -285,6 +288,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         mNavTitles = getResources().getStringArray(R.array.nav_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        
+        /**
+         * Set Drawer Header
+         */
+        View header = (View) getLayoutInflater().inflate(
+				R.layout.left_drawer_header, null);
+		TextView tv = (TextView) header.findViewById(R.id.txtHeader);
+		tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_user, 0, 0, 0);
+		mDrawerList.addHeaderView(header, header, false);
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -340,9 +352,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         switch (index) {
         case 0 :
             return LIBRARY_TAB;
+        //case 1 :
+          //  return STARRED_TAB;
         case 1 :
-            return STARRED_TAB;
-        case 2 :
             return ACTIVITY_TAB;
         default:
             return "";
@@ -469,19 +481,19 @@ public class BrowserActivity extends SherlockFragmentActivity
     private void selectItem(int position) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (position) {
-        case 0 :
+        case 1 :
             ft.detach(uploadTasksFragment);
             ft.attach(tabsFragment);
             ft.commit();
             currentSelectedItem = FILES_VIEW;
             break;
-        case 1 :
+        case 2 :
             ft.detach(tabsFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
             currentSelectedItem = UPLOAD_TASKS_VIEW;
             break;
-        case 2 :
+        case 3 :
             ft.detach(uploadTasksFragment);
             ft.attach(tabsFragment);
             ft.commit();
