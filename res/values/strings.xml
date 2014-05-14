@@ -158,5 +158,7 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="remember_my_choice">Запомнить мой выбор</string>
+    
+    <string name="secured_connection">Защищённое соединение</string>
 
 </resources>
