@@ -198,7 +198,8 @@ public class ActivitiesFragment extends SherlockFragment {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             if (getBrowserActivity() != null) {
-                Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
+            	view.loadUrl("file:///android_asset/404.html");
                 showPageLoading(false);
             }
         }
