@@ -59,13 +59,13 @@
     <string name="task_retry">Повторить попытку</string>
     <string name="task_remove">Удалить</string>
     <string name="task_remove_all_finished">Удалить завершенные</string>
-    <string name="file_action_download">Скачать с сервера</string>
+    <string name="file_action_download">Скачать</string>
     <string name="file_action_remove_cache">Удалить локальный кеш файлов</string>
     <string name="file_action_update">Обновить</string>
     <string name="file_action_share">Поделиться</string>
-    <string name="file_action_export">Экспортировать</string>
+    <string name="file_action_export">Экспорт</string>
     <string name="file_action_delete">Удалить</string>
-    <string name="file_action_rename">Переименовать</string>
+    <string name="file_action_rename">Изменить</string>
     <string name="file_action_open_as">Открыть как</string>
 
     <string-array name="file_type_array">
