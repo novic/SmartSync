@@ -34,7 +34,7 @@ public class DataManager {
 
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+            File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/SmartSync/");
             if (extDir.mkdirs() || extDir.exists()) {
                 return extDir.getAbsolutePath();
             } else {
