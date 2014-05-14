@@ -17,9 +17,16 @@ import android.util.Log;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seandroid2.crypt.CryptHelper;
 
 public class MonitorDBHelper extends SQLiteOpenHelper {
 	private static final String DEBUG_TAG = "MonitorDBHelper";
+
+	/**
+	 * Encryption handler
+	 */
+
+	private CryptHelper cryptHelper = new CryptHelper();
 
 	// If you change the database schema, you must increment the database
 	// version.
@@ -101,11 +108,16 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 		removeAutoUpdateInfo(info);
 
 		ContentValues values = new ContentValues();
-		values.put(AUTO_UPDATE_INFO_COLUMN_ACCOUNT, info.account.getSignature());
-		values.put(AUTO_UPDATE_INFO_COLUMN_REPO_ID, info.repoID);
-		values.put(AUTO_UPDATE_INFO_COLUMN_REPO_NAME, info.repoName);
-		values.put(AUTO_UPDATE_INFO_COLUMN_PARENT_DIR, info.parentDir);
-		values.put(AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH, info.localPath);
+		values.put(AUTO_UPDATE_INFO_COLUMN_ACCOUNT,
+				cryptHelper.encryptString(info.account.getSignature()));
+		values.put(AUTO_UPDATE_INFO_COLUMN_REPO_ID,
+				cryptHelper.encryptString(info.repoID));
+		values.put(AUTO_UPDATE_INFO_COLUMN_REPO_NAME,
+				cryptHelper.encryptString(info.repoName));
+		values.put(AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
+				cryptHelper.encryptString(info.parentDir));
+		values.put(AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
+				cryptHelper.encryptString(info.localPath));
 
 		database.insert(AUTO_UPDATE_INFO_TABLE_NAME, null, values);
 	}
@@ -149,13 +161,14 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 			}
 		}
 
-        for (AutoUpdateInfo info : invalidInfos) {
-            removeAutoUpdateInfo(info);
-        }
+		for (AutoUpdateInfo info : invalidInfos) {
+			removeAutoUpdateInfo(info);
+		}
 
 		c.close();
 
-		Log.d(DEBUG_TAG, String.format("loaded %d auto update info", infos.size()));
+		Log.d(DEBUG_TAG,
+				String.format("loaded %d auto update info", infos.size()));
 		return infos;
 	}
 
@@ -172,11 +185,11 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 
 	private AutoUpdateInfo cursorToAutoUpdateInfo(Cursor c,
 			Map<String, Account> accounts) {
-		String accountSignature = c.getString(0);
-		String repoID = c.getString(1);
-		String repoName = c.getString(2);
-		String parentDir = c.getString(3);
-		String localPath = c.getString(4);
+		String accountSignature = cryptHelper.decryptString(c.getString(0));
+		String repoID = cryptHelper.decryptString(c.getString(1));
+		String repoName = cryptHelper.decryptString(c.getString(2));
+		String parentDir = cryptHelper.decryptString(c.getString(3));
+		String localPath = cryptHelper.decryptString(c.getString(4));
 
 		// infos whose account or file has been deleted would be removed in the
 		// while loop
