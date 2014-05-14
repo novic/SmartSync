@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -42,7 +42,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -607,9 +606,13 @@ public class BrowserActivity extends SherlockFragmentActivity
                 tabsFragment.getReposFragment().refreshView(true);
             } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
                 tabsFragment.getActivitiesFragment().refreshView();
-            } else if (getCurrentTabName().equals(STARRED_TAB)) {
+            
+            } 
+            /* 
+             * else if (getCurrentTabName().equals(STARRED_TAB)) {
                 tabsFragment.getStarredFragment().refreshView();
             }
+            */
             return true;
         case R.id.newdir:
             showNewDirDialog();
@@ -956,7 +959,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final int PICK_PHOTOS_VIDEOS_REQUEST = 2;
     public static final int PICK_FILE_REQUEST = 3;
 
-    public class UploadChoiceDialog extends DialogFragment {
+    @SuppressLint("ValidFragment")
+	public class UploadChoiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
