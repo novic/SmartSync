@@ -1,45 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Seafile</string>
+    <string name="app_name">SmartSync</string>
     <string name="app_url">http://seafile.com</string>
-    <string name="welcome_to_seafile">Welcome to Seafile</string>
-    <string name="select_account">Choose an account to start</string>
-    <string name="edit_account">Edit</string>
-    <string name="delete_account">Delete</string>
-    <string name="delete">Delete</string>
-    <string name="server_hint">Server, like cloud.seafile.com</string>
+    <string name="welcome_to_seafile">Добро пожаловать!</string>
+    <string name="select_account">Пожалуйста, выберите Ваш аккаунт</string>
+    <string name="edit_account">Редактировать</string>
+    <string name="delete_account">Удалить</string>
+    <string name="delete">Удалить</string>
+    <string name="server_hint">Сервис cloud.seafile.com</string>
     <string name="email_hint">Email</string>
-    <string name="passwd_hint">Password</string>
-    <string name="login">Login</string>
-    <string name="open_file">Open</string>
-    <string name="download_file">Download</string>
-    <string name="redownload_file">Download again</string>
-    <string name="cancel_download">Cancel</string>
-    <string name="unknown_file_type">Unknown file type</string>
+    <string name="passwd_hint">Пароль</string>
+    <string name="login">Логин</string>
+    <string name="open_file">Открыть</string>
+    <string name="download_file">Скачать</string>
+    <string name="redownload_file">Скачать снова</string>
+    <string name="cancel_download">Отмена</string>
+    <string name="unknown_file_type">Неизвестный тип файла</string>
     <string name="activity_not_found">Can not find App to open this file</string>
-    <string name="refresh">Refresh</string>
-    <string name="login">Login</string>
-    <string name="add_account">Add Account</string>
+    <string name="refresh">Обновить</string>
+    <string name="add_account">Добавить аккаунт</string>
     <string name="personal">Personal</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
     <string name="upload_tasks">UPLOADS</string>
     <string name="activities">Activities</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
+    <string name="ok">Ок</string>
+    <string name="cancel">Отмена</string>
     <string name="pick_upload_type">Upload</string>
     <string-array name="pick_upload_array">
-        <item>File</item>
-        <item>Photos/Videos</item>
-        <item>Other</item>
+        <item>Файл</item>
+        <item>Фото либо Видео</item>
+        <item>Другое</item>
     </string-array>
-    <string name="choose_server">Choose a Seafile Server</string>
+    <string name="choose_server">Пожалуйста, выберите сервис</string>
     <string-array name="choose_server_array">
-        <item>Private Seafile Server</item>
-        <item>SeaCloud.cc</item>
-        <item>cloud.seafile.com</item>
+        <item>Корпоративный сервер</item>
+        <item>Сервис SeaCloud.cc</item>
+        <item>Сервис cloud.seafile.com</item>
     </string-array>
-    <string name="network_down">No network connection</string>
+    <string name="network_down">Нет соединения с Интернет</string>
     <string name="invalid_server_address">Invalid server address</string>
     <string name="err_server_andress_empty">Server address can not be empty</string>
     <string name="err_login_failed">Login failed</string>
@@ -86,8 +85,6 @@
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
     <string name="add_to_seafile">Add to Seafile</string>
-    <string name="ok">Ok</string>
-    <string name="cancel">Cancel</string>
     <string name="no_account">Please setup an account in Seafile first</string>
     <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
@@ -132,7 +129,6 @@
     <string name="upload_waiting">Waiting</string>
     <string name="upload_finished">Finished</string>
     <string name="upload_cancelled">Cancelled</string>
-    <string name="upload_failed">Failed</string>
     <string name="days_ago"> days ago</string>
     <string name="hours_ago"> hours ago</string>
     <string name="minutes_ago"> minutes ago</string>
@@ -141,8 +137,6 @@
     <string name="error_when_load_starred">Error when loading starred files</string>
     <string name="open_as">Open as</string>
     <string name="select_upload_files">select files to upload</string>
-    <string name="cancel">Cancel</string>
-    <string name="upload">Upload</string>
     <string name="storage_removed">Storage was removed</string>
     <string name="error_selecting_file">Error when selecting file</string>
     <string name="n_upload_files_selected">%d file(s) selected</string>
