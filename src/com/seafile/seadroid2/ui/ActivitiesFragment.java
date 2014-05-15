@@ -42,6 +42,7 @@ import android.view.animation.AnimationUtils;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -153,7 +154,7 @@ public class ActivitiesFragment extends SherlockFragment {
 		wv.getSettings().setAllowFileAccess(true);
 		
 		if (!Utils.isNetworkOn()) { // loading offline content
-			webView.getSettings().setCacheMode( wv.getSettings().LOAD_CACHE_ELSE_NETWORK );
+			wv.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         }
 	}
 
