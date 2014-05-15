@@ -1,6 +1,11 @@
 package com.seafile.seadroid2.ui;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.cert.Certificate;
@@ -13,12 +18,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.http.SslCertificate;
 import android.net.http.SslCertificate.DName;
 import android.net.http.SslError;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +45,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.FileActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
 
@@ -121,9 +138,24 @@ public class ActivitiesFragment extends SherlockFragment {
         showPageLoading(true);
         Account account = getBrowserActivity().getAccount();
         String url = account.getServer() + ACTIVITIES_URL;
+        
+        enableWebAppCache(webView);
 
         webView.loadUrl(url, getExtraHeaders());
     }
+    
+    private void enableWebAppCache(WebView wv) {
+    	
+		wv.getSettings().setDomStorageEnabled(true);
+		wv.getSettings().setAppCacheEnabled(true);
+		wv.getSettings().setAppCachePath(
+				"/data/data/" + getActivity().getPackageName() + "/cache");
+		wv.getSettings().setAllowFileAccess(true);
+		
+		if (!Utils.isNetworkOn()) { // loading offline content
+			webView.getSettings().setCacheMode( wv.getSettings().LOAD_CACHE_ELSE_NETWORK );
+        }
+	}
 
     private Map<String, String> getExtraHeaders() {
         Account account = getBrowserActivity().getAccount();
