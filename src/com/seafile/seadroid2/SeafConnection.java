@@ -209,6 +209,33 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
+    
+    public String getActivities() throws SeafException {
+        HttpRequest req = null;
+        try {
+            req = prepareApiGetRequest("api2/events/");
+            if (req.code() != 200) {
+                if (req.message() == null) {
+                    throw SeafException.networkException;
+                } else {
+                    throw new SeafException(req.code(), req.message());
+                }
+            }
+
+            String result = new String(req.bytes(), "UTF-8");
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            if (e.getCause() instanceof SSLHandshakeException) {
+                throw SeafException.sslException;
+            } else {
+                throw SeafException.networkException;
+            }
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
 
     public String getStarredFiles() throws SeafException {
         try {

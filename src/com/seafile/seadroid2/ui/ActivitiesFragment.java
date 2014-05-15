@@ -1,396 +1,298 @@
 package com.seafile.seadroid2.ui;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-
+import java.util.List;
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.net.http.SslCertificate;
 import android.net.http.SslCertificate.DName;
-import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.webkit.JsResult;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
-import com.seafile.seadroid2.FileActivity;
-import com.seafile.seadroid2.NavContext;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafActivity;
 
-public class ActivitiesFragment extends SherlockFragment {
-    private static final String DEBUG_TAG = "ActivitiesFragment";
+public class ActivitiesFragment extends SherlockListFragment {
+	private static final String DEBUG_TAG = "ActivitiesFragment";
 
-    private static final String ACTIVITIES_URL = "api2/html/events/";
+	private WebView webView = null;
+	private FrameLayout mWebViewContainer = null;
+	private View mProgressContainer;
 
-    private WebView webView = null;
-    private FrameLayout mWebViewContainer = null;
-    private View mProgressContainer;
+	private View mListContainer;
+	private TextView mErrorText;
+	private ActivityItemAdapter adapter;
+	private ListView mList;
+	private TextView mEmptyView;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Log.d(DEBUG_TAG, "ActivitiesFragment Attached");
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    private BrowserActivity getBrowserActivity() {
-        return (BrowserActivity)getActivity();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activities_fragment, container, false);
-    }
-
-    @Override
-    public void onPause() {
-        Log.d(DEBUG_TAG, "onPause");
-        super.onPause();
-
-        if (webView != null) {
-            mWebViewContainer.removeView(webView);
-        }
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "onActivityCreated");
-
-        mWebViewContainer = (FrameLayout)getView().findViewById(R.id.webViewContainer);
-        mProgressContainer = getView().findViewById(R.id.progressContainer);
-
-        if (webView == null) {
-            webView = new WebView(getBrowserActivity());
-            initWebView();
-            loadActivitiesPage();
-        }
-
-        getBrowserActivity().invalidateOptionsMenu();
-
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onResume() {
-        // We add the webView on create and remove it on pause, so as to make
-        // it retain state. Otherwise the webview will reload the url every
-        // time the tab is switched.
-        super.onResume();
-        mWebViewContainer.addView(webView);
-    }
-
-    public void refreshView() {
-        loadActivitiesPage();
-    }
-
-    private void initWebView() {
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new MyWebViewClient());
-
-        webView.setWebChromeClient(new MyWebChromeClient());
-    }
-
-    private void loadActivitiesPage() {
-        showPageLoading(true);
-        Account account = getBrowserActivity().getAccount();
-        String url = account.getServer() + ACTIVITIES_URL;
-        
-        enableWebAppCache(webView);
-
-        webView.loadUrl(url, getExtraHeaders());
-    }
-    
-    private void enableWebAppCache(WebView wv) {
-    	
-		wv.getSettings().setDomStorageEnabled(true);
-		wv.getSettings().setAppCacheEnabled(true);
-		wv.getSettings().setAppCachePath(
-				"/data/data/" + getActivity().getPackageName() + "/cache");
-		wv.getSettings().setAllowFileAccess(true);
-		
-		if (!Utils.isNetworkOn()) { // loading offline content
-			wv.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        }
+	private DataManager getDataManager() {
+		return mActivity.getDataManager();
 	}
 
-    private Map<String, String> getExtraHeaders() {
-        Account account = getBrowserActivity().getAccount();
-        String token = "Token " + account.getToken();
-        Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Authorization", token);
+	private BrowserActivity mActivity = null;
 
-        return headers;
-    }
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// return inflater.inflate(R.layout.activities_fragment, container,
+		// false);
 
-    private void showPageLoading(boolean pageLoading) {
-        if (getBrowserActivity() == null) {
-            return;
-        }
+		View root = inflater.inflate(R.layout.activities_fragment, container,
+				false);
+		mList = (ListView) root.findViewById(android.R.id.list);
+		mEmptyView = (TextView) root.findViewById(android.R.id.empty);
+		mListContainer = root.findViewById(R.id.listContainer);
+		mErrorText = (TextView) root.findViewById(R.id.error_message);
+		mProgressContainer = root.findViewById(R.id.progressContainer);
 
-        if (!pageLoading) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                                    getBrowserActivity(), android.R.anim.fade_out));
-            webView.startAnimation(AnimationUtils.loadAnimation(
-                                getBrowserActivity(), android.R.anim.fade_in));
-            mProgressContainer.setVisibility(View.GONE);
-            webView.setVisibility(View.VISIBLE);
-        } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    getBrowserActivity(), android.R.anim.fade_in));
-            webView.startAnimation(AnimationUtils.loadAnimation(
-                    getBrowserActivity(), android.R.anim.fade_out));
+		return root;
+	}
 
-            mProgressContainer.setVisibility(View.VISIBLE);
-            webView.setVisibility(View.INVISIBLE);
-        }
-    }
+	@Override
+	public void onPause() {
+		Log.d(DEBUG_TAG, "onPause");
+		super.onPause();
+	}
 
-    private void viewRepo(String repoID) {
-        SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		Log.d(DEBUG_TAG, "onActivityCreated");
 
-        if (repo == null) {
-            getBrowserActivity().showToast("Couldn't find this library. It may be deleted");
-            return;
-        }
+		adapter = new ActivityItemAdapter(mActivity);
+		setListAdapter(adapter);
 
-        NavContext nav = getBrowserActivity().getNavContext();
+		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+	}
 
-        nav.setRepoID(repoID);
-        nav.setRepoName(repo.getName());
-        nav.setDir("/", repo.getRootDirID());
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		Log.d(DEBUG_TAG, "ActivitiesFragment Attached");
+		mActivity = (BrowserActivity) activity;
+	}
 
-        // switch to LIBRARY TAB
-        getBrowserActivity().getSupportActionBar().setSelectedNavigationItem(0);
-    }
+	@Override
+	public void onStart() {
+		Log.d(DEBUG_TAG, "ActivitiesFragment onStart");
+		super.onStart();
+	}
 
-    private void viewFile(String repoID, String path) {
-        SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
+	@Override
+	public void onStop() {
+		Log.d(DEBUG_TAG, "ActivitiesFragment onStop");
+		super.onStop();
+	}
 
-        if (repo == null) {
-            getBrowserActivity().showToast(R.string.library_not_found);
-            return;
-        }
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.d(DEBUG_TAG, "ActivitiesFragment onResume");
+		// refresh the view (loading data)
+		refreshView();
+	}
 
-        Intent intent = new Intent(getActivity(), FileActivity.class);
-        intent.putExtra("repoName", repo.getName());
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", path);
-        intent.putExtra("account", getBrowserActivity().getAccount());
-        startActivity(intent);
-    }
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
 
-    private class MyWebViewClient extends WebViewClient {
-        // Display error messages
-        @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            if (getBrowserActivity() != null) {
-                //Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
-            	view.loadUrl("file:///android_asset/404.html");
-                showPageLoading(false);
-            }
-        }
+	@Override
+	public void onDetach() {
+		mActivity = null;
+		super.onDetach();
+	}
 
-        // Ignore SSL certificate validate
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            BrowserActivity mActivity = getBrowserActivity();
-            if (mActivity == null) {
-                return;
-            }
+	public void refreshView() {
+		refreshView(false);
+	}
 
-            Account account = mActivity.getAccount();
+	@SuppressLint("NewApi")
+	public void refreshView(boolean forceRefresh) {
+		if (mActivity == null)
+			return;
 
-            SslCertificate sslCert = error.getCertificate();
-            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
+		mErrorText.setVisibility(View.GONE);
+		mListContainer.setVisibility(View.VISIBLE);
 
-            if (isSameCert(sslCert, savedCert)) {
-                Log.d(DEBUG_TAG, "trust this cert");
-                handler.proceed();
-            } else {
-                Log.d(DEBUG_TAG, "cert is not trusted");
-                mActivity.showToast(R.string.ssl_error);
-                showPageLoading(false);
-            }
-        }
+		navToActivitiesView(forceRefresh);
 
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "loading url " + url);
-            String API_URL_PREFIX= "api://";
-            if (!url.startsWith(API_URL_PREFIX)) {
-                return false;
-            }
+		mActivity.supportInvalidateOptionsMenu();
+	}
 
-            String req = url.substring(API_URL_PREFIX.length(), url.length());
+	public void navToActivitiesView(boolean forceRefresh) {
+		// mActivity.disableUpButton();
+		if (!Utils.isNetworkOn() || !forceRefresh) {
+			List<SeafActivity> activities = getDataManager()
+					.getActivitiesFromCache();
+			if (activities != null) {
+				updateAdapterWithActivities(activities);
+				return;
+			}
+		}
 
-            Pattern REPO_PATTERN = Pattern.compile("repos/([-a-f0-9]{36})/?");
-            Pattern REPO_FILE_PATTERN = Pattern.compile("repo/([-a-f0-9]{36})/files/\\?p=(.+)");
-            Matcher matcher;
+		// load repos in background
+		showLoading(true);
+		ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
+	}
 
-            if ((matcher = fullMatch(REPO_PATTERN, req)) != null) {
-                String repoID = matcher.group(1);
-                viewRepo(repoID);
+	private class LoadTask extends AsyncTask<Void, Void, List<SeafActivity>> {
+		SeafException err = null;
+		DataManager dataManager;
 
-            } else if ((matcher = fullMatch(REPO_FILE_PATTERN, req)) != null) {
-                String repoID = matcher.group(1);
+		public LoadTask(DataManager dataManager) {
+			this.dataManager = dataManager;
+		}
 
-                try {
-                    String path = URLDecoder.decode(matcher.group(2), "UTF-8");
-                    viewFile(repoID, path);
-                } catch (UnsupportedEncodingException e) {
-                    // Ignore
-                }
-            }
+		@Override
+		protected List<SeafActivity> doInBackground(Void... params) {
+			try {
+				return dataManager.getActivitiesFromServer();
+			} catch (SeafException e) {
+				err = e;
+				return null;
+			}
+		}
 
-            return true;
-        }
+		private void displaySSLError() {
+			if (mActivity == null)
+				return;
 
-        @Override
-        public void onPageFinished(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "onPageFinished " + url);
-            if (getBrowserActivity() != null) {
-                String js = String.format("javascript:setToken('%s')",
-                                          getBrowserActivity().getAccount().getToken());
-                webView.loadUrl(js);
-            }
-            showPageLoading(false);
-        }
-    }
+			showError(R.string.ssl_error);
+		}
 
-    private static Matcher fullMatch(Pattern pattern, String str) {
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches() ? matcher : null;
-    }
+		private void resend() {
+			if (mActivity == null)
+				return;
 
-    private class MyWebChromeClient extends WebChromeClient {
+			ConcurrentAsyncTask.execute(new LoadTask(dataManager));
+		}
 
-        // For debug js
-        @Override
-        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-            Log.d(DEBUG_TAG, "alert: " + message);
-            return super.onJsAlert(view, url, message, result);
-        }
-    }
+		// onPostExecute displays the results of the AsyncTask.
+		@Override
+		protected void onPostExecute(List<SeafActivity> sa) {
+			if (mActivity == null)
+				// this occurs if user navigation to another activity
+				return;
 
-    /**
-     * SslCertificate class does not has a public getter for the underlying
-     * X509Certificate, we can only do this by hack. This only works for andorid 4.0+
-     * @see https://groups.google.com/forum/#!topic/android-developers/eAPJ6b7mrmg
-     */
-    private static X509Certificate getX509CertFromSslCertHack(SslCertificate sslCert) {
-        X509Certificate x509Certificate = null;
+			// Prompt the user to accept the ssl certificate
+			if (err == SeafException.sslException) {
+				SslConfirmDialog dialog = new SslConfirmDialog(
+						dataManager.getAccount(),
+						new SslConfirmDialog.Listener() {
+							@Override
+							public void onAccepted(boolean rememberChoice) {
+								Account account = dataManager.getAccount();
+								CertsManager.instance().saveCertForAccount(
+										account, rememberChoice);
+								resend();
+							}
 
-        Bundle bundle = SslCertificate.saveState(sslCert);
-        byte[] bytes = bundle.getByteArray("x509-certificate");
+							@Override
+							public void onRejected() {
+								displaySSLError();
+							}
+						});
+				dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
+				return;
+			}
 
-        if (bytes == null) {
-            x509Certificate = null;
-        } else {
-            try {
-                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-                Certificate cert = certFactory.generateCertificate(new ByteArrayInputStream(bytes));
-                x509Certificate = (X509Certificate) cert;
-            } catch (CertificateException e) {
-                x509Certificate = null;
-            }
-        }
+			if (err != null) {
+				err.printStackTrace();
+				Log.i(DEBUG_TAG,
+						"failed to load activities: " + err.getMessage());
+				showError(R.string.error_when_load_repos);
+				return;
+			}
 
-        return x509Certificate;
-    }
+			if (sa != null) {
+				Log.d(DEBUG_TAG, "Load activities number " + sa.size());
+				updateAdapterWithActivities(sa);
+				showLoading(false);
+			} else {
+				Log.i(DEBUG_TAG, "failed to load activities");
+				showError(R.string.error_when_load_repos);
+			}
+		}
+	}
 
-    private static boolean isSameCert(SslCertificate sslCert, X509Certificate x509Cert) {
-        if (sslCert == null || x509Cert == null) {
-            return false;
-        }
+	private void showError(int strID) {
+		showError(mActivity.getResources().getString(strID));
+	}
 
-        X509Certificate realCert = getX509CertFromSslCertHack(sslCert);
-        if (realCert != null) {
-            // for android 4.0+
-            return realCert.equals(x509Cert);
-        } else {
-            // for andorid < 4.0
-            return SslCertificateComparator.compare(sslCert,
-                                                    new SslCertificate(x509Cert));
-        }
-    }
+	private void showError(String msg) {
+		mProgressContainer.setVisibility(View.GONE);
+		mListContainer.setVisibility(View.GONE);
 
-    /**
-     * Compare SslCertificate objects for android before 4.0
-     */
-    private static class SslCertificateComparator {
-        private SslCertificateComparator() {
-        }
+		adapter.clear();
+		adapter.notifyChanged();
 
-        public static boolean compare(SslCertificate cert1, SslCertificate cert2) {
-            return isSameDN(cert1.getIssuedTo(), cert2.getIssuedTo())
-                && isSameDN(cert1.getIssuedBy(), cert2.getIssuedBy())
-                && isSameDate(cert1.getValidNotBeforeDate(), cert2.getValidNotBeforeDate())
-                && isSameDate(cert1.getValidNotAfterDate(), cert2.getValidNotAfterDate());
-        }
+		mErrorText.setText(msg);
+		mErrorText.setVisibility(View.VISIBLE);
+	}
 
-        private static boolean isSameDate(Date date1, Date date2) {
-            if (date1 == null && date2 == null) {
-                return true;
-            } else if (date1 == null || date2 == null) {
-                return false;
-            }
+	private void showLoading(boolean show) {
+		mErrorText.setVisibility(View.GONE);
+		if (show) {
+			mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+					mActivity, android.R.anim.fade_in));
+			mListContainer.startAnimation(AnimationUtils.loadAnimation(
+					mActivity, android.R.anim.fade_out));
 
-            return date1.equals(date2);
-        }
+			mProgressContainer.setVisibility(View.VISIBLE);
+			mListContainer.setVisibility(View.INVISIBLE);
+		} else {
+			mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+					mActivity, android.R.anim.fade_out));
+			mListContainer.startAnimation(AnimationUtils.loadAnimation(
+					mActivity, android.R.anim.fade_in));
 
-        private static boolean isSameDN(DName dName1, DName dName2) {
-            if (dName1 == null && dName2 == null) {
-                return true;
-            } else if (dName1 == null || dName2 == null) {
-                return false;
-            }
+			mProgressContainer.setVisibility(View.GONE);
+			mListContainer.setVisibility(View.VISIBLE);
+		}
+	}
 
-            return dName1.getDName().equals(dName2.getDName());
-        }
-    }
+	private void addActivitiesToAdapter(List<SeafActivity> activities) {
+		if (activities == null)
+			return;
+
+		for (SeafActivity activity : activities)
+			adapter.add(activity);
+	}
+
+	private void updateAdapterWithActivities(List<SeafActivity> activities) {
+		adapter.clear();
+		if (activities.size() > 0) {
+			addActivitiesToAdapter(activities);
+			adapter.notifyChanged();
+			mList.setVisibility(View.VISIBLE);
+			mEmptyView.setVisibility(View.GONE);
+		} else {
+			mList.setVisibility(View.GONE);
+			mEmptyView.setText(R.string.no_repo);
+			mEmptyView.setVisibility(View.VISIBLE);
+		}
+	}
 }

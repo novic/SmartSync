@@ -192,6 +192,7 @@ public class DataManager {
     private DatabaseHelper dbHelper;
 
     List<SeafRepo> reposCache = null;
+    List<SeafActivity> activityCache = null;
 
     public DataManager(Account act) {
         account = act;
@@ -205,6 +206,12 @@ public class DataManager {
 
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
+        return new File(getExternalCacheDirectory() + "/" +
+                filename);
+    }
+    
+    private File getFileForActivitiesCache() {
+        String filename = "activities-" + (account.server + account.email).hashCode() + ".dat";
         return new File(getExternalCacheDirectory() + "/" +
                 filename);
     }
@@ -336,6 +343,30 @@ public class DataManager {
             return null;
         }
     }
+    
+    private List<SeafActivity> parseActivities(String json) {
+        try {
+            // may throw ClassCastException
+            JSONObject data = Utils.parseJsonObject(json);
+            JSONArray array = data.getJSONArray("events");
+            if (array.length() == 0)
+                return null;
+            ArrayList<SeafActivity> activities = new ArrayList<SeafActivity>();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SeafActivity activity = SeafActivity.fromJson(obj);
+                if (activity != null)
+                	activities.add(activity);
+            }
+            return activities;
+        } catch (JSONException e) {
+            Log.w(DEBUG_TAG, "repos: parse json error");
+            return null;
+        } catch (Exception e) {
+            // other exception, for example ClassCastException
+            return null;
+        }
+    }
 
     public List<SeafRepo> getCachedRepos() {
         return reposCache;
@@ -372,6 +403,19 @@ public class DataManager {
         }
         return null;
     }
+    
+    public List<SeafActivity> getActivitiesFromCache() {
+        if (activityCache != null)
+            return activityCache;
+
+        File cache = getFileForActivitiesCache();
+        if (cache.exists()) {
+            String json = Utils.readFile(cache);
+            activityCache = parseActivities(json);
+            return activityCache;
+        }
+        return null;
+    }
 
     public List<SeafRepo> getReposFromServer() throws SeafException {
         // First decide if use cache
@@ -394,6 +438,29 @@ public class DataManager {
         }
 
         return reposCache;
+    }
+    
+    public List<SeafActivity> getActivitiesFromServer() throws SeafException {
+        // First decide if use cache
+        if (!Utils.isNetworkOn()) {
+            throw SeafException.networkException;
+        }
+
+        // Log.d(DEBUG_TAG, "get repos from server");
+        String json = sc.getActivities();
+        if (json == null)
+            return null;
+
+        activityCache = parseActivities(json);
+
+        try {
+            File cache = getFileForActivitiesCache();
+            Utils.writeFile(cache, json);
+        } catch (IOException e) {
+            // ignore
+        }
+
+        return activityCache;
     }
 
     public interface ProgressMonitor {
