@@ -98,7 +98,7 @@ public class TabsFragment extends SherlockFragment {
     //}
     
     public ActivitiesFragment getActivitiesFragment() {
-        return (ActivitiesFragment)getFragment(2);
+        return (ActivitiesFragment)getFragment(1);
     } 
     
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
