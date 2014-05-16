@@ -55,7 +55,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -74,7 +73,6 @@ import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
-import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
@@ -83,7 +81,6 @@ import com.seafile.seadroid2.ui.UploadTasksFragment;
 @SuppressWarnings("deprecation")
 public class BrowserActivity extends SherlockFragmentActivity implements
 		ReposFragment.OnFileSelectedListener,
-		StarredFragment.OnStarredFileSelectedListener,
 		OnBackStackChangedListener {
 
 	private static final String DEBUG_TAG = "BrowserActivity";
@@ -114,7 +111,6 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 
 	private static final String LIBRARY_TAB = "Libraries";
 	private static final String ACTIVITY_TAB = "Activities";
-	private static final String STARRED_TAB = "Starred";
 
 	public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
 	public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
@@ -374,8 +370,6 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		switch (index) {
 		case 0:
 			return LIBRARY_TAB;
-			// case 1 :
-			// return STARRED_TAB;
 		case 1:
 			return ACTIVITY_TAB;
 		default:
@@ -477,8 +471,7 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 	public void onSaveInstanceState(Bundle outState) {
 		Log.d(DEBUG_TAG, "onSaveInstanceState");
 		super.onSaveInstanceState(outState);
-		// outState.putInt("tab",
-		// getSupportActionBar().getSelectedNavigationIndex());
+		
 		if (navContext.getRepoID() != null) {
 			outState.putString("repoID", navContext.getRepoID());
 			outState.putString("repoName", navContext.getRepoName());
@@ -592,17 +585,6 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 			menuNewFile.setVisible(false);
 		}
 
-		if (getCurrentTabName().equals(STARRED_TAB)) {
-			menuUpload.setVisible(false);
-			menuNewDir.setVisible(false);
-			menuNewFile.setVisible(false);
-			if (drawerOpen) {
-				menuRefresh.setVisible(false);
-			} else {
-				menuRefresh.setVisible(true);
-			}
-		}
-
 		return true;
 	}
 
@@ -648,10 +630,6 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 				tabsFragment.getActivitiesFragment().refreshView(true);
 
 			}
-			/*
-			 * else if (getCurrentTabName().equals(STARRED_TAB)) {
-			 * tabsFragment.getStarredFragment().refreshView(); }
-			 */
 			return true;
 		case R.id.newdir:
 			showNewDirDialog();
@@ -1157,30 +1135,6 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 	}
 
 	@Override
-	public void onStarredFileSelected(SeafStarredFile starredFile) {
-
-		final String repoID = starredFile.getRepoID();
-		SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
-		final String repoName = seafRepo.getName();
-		final String filePath = starredFile.getPath();
-
-		File localFile = dataManager.getLocalCachedFile(repoName, repoID,
-				filePath, null);
-		if (localFile != null) {
-			showFile(localFile);
-			return;
-		}
-
-		Intent intent = new Intent(this, FileActivity.class);
-		intent.putExtra("repoName", repoName);
-		intent.putExtra("repoID", repoID);
-		intent.putExtra("filePath", filePath);
-		intent.putExtra("account", account);
-		startActivity(intent);
-		return;
-	}
-
-	@Override
 	public void onBackPressed() {
 		if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
 			getSupportFragmentManager().popBackStack();
@@ -1640,5 +1594,4 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		}
 
 	} // TransferReceiver
-
 }

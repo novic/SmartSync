@@ -25,7 +25,7 @@
 
     <style name="CustomTitlePageIndicator">
         <item name="android:background">#18FF0000</item>
-        <item name="footerColor">#FFAA2222</item>
+        <item name="footerColor">#FF0d8ec1</item>
         <item name="footerLineHeight">1dp</item>
         <item name="footerIndicatorHeight">3dp</item>
         <item name="footerIndicatorStyle">underline</item>
@@ -38,7 +38,7 @@
         <item name="strokeWidth">4dp</item>
         <item name="lineWidth">30dp</item>
         <item name="unselectedColor">#FF888888</item>
-        <item name="selectedColor">#FF880000</item>
+        <item name="selectedColor">#FF0d8ec1</item>
     </style>
 
     <style name="CustomCirclePageIndicator">

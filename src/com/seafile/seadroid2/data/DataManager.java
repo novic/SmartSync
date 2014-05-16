@@ -512,25 +512,6 @@ public class DataManager {
             return null;
         }
     }
-
-    private List<SeafStarredFile> parseStarredFiles(String json) {
-        try {
-            JSONArray array = Utils.parseJsonArray(json);
-            if (array == null)
-                return null;
-
-            ArrayList<SeafStarredFile> starredFiles = new ArrayList<SeafStarredFile>();
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                SeafStarredFile sf = SeafStarredFile.fromJson(obj);
-                if (sf != null)
-                    starredFiles.add(sf);
-            }
-            return starredFiles;
-        } catch (JSONException e) {
-            return null;
-        }
-    }
     
     public List<SeafDirent> getCachedDirents(String repoID, String path) {
         String json = null;
@@ -578,13 +559,6 @@ public class DataManager {
         }
 
         return parseDirents(content);
-    }
-
-    public List<SeafStarredFile> getStarredFiles() throws SeafException {
-        
-        String starredFiles = sc.getStarredFiles();
-        Log.i("GET STARRED FILES", starredFiles);
-        return parseStarredFiles(starredFiles);
     }
     
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
