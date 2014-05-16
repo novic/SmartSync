@@ -645,7 +645,7 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 
 				tabsFragment.getReposFragment().refreshView(true);
 			} else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
-				tabsFragment.getActivitiesFragment().refreshView();
+				tabsFragment.getActivitiesFragment().refreshView(true);
 
 			}
 			/*
