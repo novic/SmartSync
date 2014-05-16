@@ -18,7 +18,7 @@ public class SeafActivity implements ActivityItem {
 	public String name;
 	public String description;
 	public String user;
-	public Date mtime; // the last modification time
+	public String mtime; // the last modification time
 
 	static SeafActivity fromJson(JSONObject obj) {
 		SeafActivity act = new SeafActivity();
@@ -28,7 +28,7 @@ public class SeafActivity implements ActivityItem {
 			act.description = obj.getString("desc");
 			act.user = obj.getString("nick");
 			long mt = obj.getLong("time");
-			act.mtime = new Date(mt);
+			act.mtime = new Date(mt).toLocaleString();
 			return act;
 		} catch (JSONException e) {
 			return null;
@@ -52,10 +52,10 @@ public class SeafActivity implements ActivityItem {
 	}
 
 	public String getUser() {
-		return description;
+		return user;
 	}
 
-	public Date getTime() {
+	public String getTime() {
 		return mtime;
 	}
 

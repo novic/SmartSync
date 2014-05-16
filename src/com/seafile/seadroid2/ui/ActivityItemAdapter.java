@@ -13,7 +13,7 @@ import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.ActivityItem;
 import com.seafile.seadroid2.data.SeafActivity;
-import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafCachedActivity;
 import com.seafile.seadroid2.data.SeafGroup;
 
 public class ActivityItemAdapter extends BaseAdapter {
@@ -101,50 +101,53 @@ public class ActivityItemAdapter extends BaseAdapter {
 
 		if (convertView == null) {
 			view = LayoutInflater.from(mActivity).inflate(
-					R.layout.list_item_entry, null);
-			TextView title = (TextView) view.findViewById(R.id.list_item_title);
-			TextView subtitle = (TextView) view
-					.findViewById(R.id.list_item_subtitle);
+					R.layout.list_item_activity, null);
+			TextView desc = (TextView) view
+					.findViewById(R.id.list_item_description);
+			TextView user = (TextView) view.findViewById(R.id.list_item_user);
+			TextView time = (TextView) view.findViewById(R.id.list_item_time);
+			TextView name = (TextView) view.findViewById(R.id.list_item_name);
 			ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-			ImageView action = (ImageView) view
-					.findViewById(R.id.list_item_action);
-			viewHolder = new Viewholder(title, subtitle, icon, action);
+			viewHolder = new Viewholder(desc, user, time, name, icon);
 			view.setTag(viewHolder);
 		} else {
 			viewHolder = (Viewholder) convertView.getTag();
 		}
 
-		viewHolder.title.setText(activity.getRepoName());
-		viewHolder.subtitle.setText(activity.getDescription());
+		viewHolder.desc.setText(activity.getDescription());
+		viewHolder.user.setText(activity.getUser());
+		viewHolder.time.setText(activity.getTime());
+		viewHolder.name.setText(activity.getRepoName());
 		viewHolder.icon.setImageResource(activity.getIcon());
-		viewHolder.action.setVisibility(View.INVISIBLE);
 		return view;
 	}
 
-	private View getCacheView(SeafCachedFile item, View convertView,
+	private View getCacheView(SeafCachedActivity item, View convertView,
 			ViewGroup parent) {
 		View view = convertView;
 		Viewholder viewHolder;
 
 		if (convertView == null) {
 			view = LayoutInflater.from(mActivity).inflate(
-					R.layout.list_item_entry, null);
-			TextView title = (TextView) view.findViewById(R.id.list_item_title);
-			TextView subtitle = (TextView) view
-					.findViewById(R.id.list_item_subtitle);
+					R.layout.list_item_activity, null);
+			TextView desc = (TextView) view
+					.findViewById(R.id.list_item_description);
+			TextView user = (TextView) view.findViewById(R.id.list_item_user);
+			TextView time = (TextView) view.findViewById(R.id.list_item_time);
+			TextView name = (TextView) view.findViewById(R.id.list_item_name);
 			ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-			ImageView action = (ImageView) view
-					.findViewById(R.id.list_item_action);
-			viewHolder = new Viewholder(title, subtitle, icon, action);
+			viewHolder = new Viewholder(desc, user, time, name, icon);
 			view.setTag(viewHolder);
 		} else {
 			viewHolder = (Viewholder) convertView.getTag();
 		}
 
-		viewHolder.title.setText(item.getTitle());
-		viewHolder.subtitle.setText(item.getSubtitle());
-		viewHolder.icon.setImageResource(item.getIcon());
-		viewHolder.action.setVisibility(View.INVISIBLE);
+		viewHolder.desc.setText(item.getDescription());
+		viewHolder.user.setText(item.getUser());
+		viewHolder.time.setText(item.getTime());
+		viewHolder.name.setText(item.getRepoName());
+		// TODO:
+		viewHolder.icon.setImageResource(R.drawable.repo);
 		return view;
 	}
 
@@ -153,24 +156,25 @@ public class ActivityItemAdapter extends BaseAdapter {
 		ActivityItem item = items.get(position);
 		if (item instanceof SeafActivity) {
 			return getActivityView((SeafActivity) item, convertView, parent);
-		} else if (item instanceof SeafCachedFile) {
-			return getCacheView((SeafCachedFile) item, convertView, parent);
+		} else if (item instanceof SeafCachedActivity) {
+			return getCacheView((SeafCachedActivity) item, convertView, parent);
 		} else {
 			return getActivityView((SeafActivity) item, convertView, parent);
 		}
 	}
 
 	private class Viewholder {
-		TextView title, subtitle;
-		ImageView icon, action;
+		TextView desc, user, time, name;
+		ImageView icon;
 
-		public Viewholder(TextView title, TextView subtitle, ImageView icon,
-				ImageView action) {
+		public Viewholder(TextView desc, TextView user, TextView time, TextView name,
+				ImageView icon) {
 			super();
 			this.icon = icon;
-			this.action = action;
-			this.title = title;
-			this.subtitle = subtitle;
+			this.desc = desc;
+			this.user = user;
+			this.time = time;
+			this.name = name;
 		}
 	}
 }

@@ -1,16 +1,8 @@
 package com.seafile.seadroid2.ui;
 
-import java.io.ByteArrayInputStream;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Date;
 import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.net.http.SslCertificate;
-import android.net.http.SslCertificate.DName;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,8 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebView;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -37,8 +27,6 @@ import com.seafile.seadroid2.data.SeafActivity;
 public class ActivitiesFragment extends SherlockListFragment {
 	private static final String DEBUG_TAG = "ActivitiesFragment";
 
-	private WebView webView = null;
-	private FrameLayout mWebViewContainer = null;
 	private View mProgressContainer;
 
 	private View mListContainer;
@@ -56,8 +44,6 @@ public class ActivitiesFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// return inflater.inflate(R.layout.activities_fragment, container,
-		// false);
 
 		View root = inflater.inflate(R.layout.activities_fragment, container,
 				false);
