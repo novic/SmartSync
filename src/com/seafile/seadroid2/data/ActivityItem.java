@@ -9,4 +9,6 @@ public interface ActivityItem {
 	public String getUser();
 
 	public String getTime();
+	
+	public int getIcon();
 }

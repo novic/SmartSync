@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.data;
 
+import com.seafile.seadroid2.R;
+
 public class SeafCachedActivity implements ActivityItem {
     
     public int id;
@@ -8,6 +10,7 @@ public class SeafCachedActivity implements ActivityItem {
     public String user;
     public String time;
     public String path;
+    public int icon;
 
     public SeafCachedActivity() {
         id = -1;
@@ -31,5 +34,10 @@ public class SeafCachedActivity implements ActivityItem {
     @Override
     public String getTime() {
     	return path.substring(path.lastIndexOf('/') + 4);
+    };
+    
+    @Override
+    public int getIcon() {
+    	return R.drawable.icon;
     };
 }

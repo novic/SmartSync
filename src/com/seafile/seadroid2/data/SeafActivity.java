@@ -60,7 +60,7 @@ public class SeafActivity implements ActivityItem {
 	}
 
 	public int getIcon() {
-		return R.drawable.repo;
+		return R.drawable.info;
 	}
 
 }

@@ -147,7 +147,7 @@ public class ActivityItemAdapter extends BaseAdapter {
 		viewHolder.time.setText(item.getTime());
 		viewHolder.name.setText(item.getRepoName());
 		// TODO:
-		viewHolder.icon.setImageResource(R.drawable.repo);
+		viewHolder.icon.setImageResource(item.getIcon());
 		return view;
 	}
 
