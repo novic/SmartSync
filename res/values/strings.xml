@@ -88,6 +88,7 @@
     <string name="library_read_only">Библиотека доступна Вам только для чтения</string>
     <string name="error_when_load_dirents">Ошибка загрузки папки</string>
     <string name="error_when_load_repos">Ошибка загрузки библиотек файлов</string>
+    <string name="error_when_load_activities">Ошибка загрузки списка изменений файлов</string>
     <string name="dir_empty">Папка пуста</string>
     <string name="no_repo">У Вас ещё нет библиотек файлов</string>
     <string name="no_app_available">Не могу найли подходящего приложения</string>

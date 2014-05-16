@@ -209,7 +209,7 @@ public class ActivitiesFragment extends SherlockListFragment {
 				err.printStackTrace();
 				Log.i(DEBUG_TAG,
 						"failed to load activities: " + err.getMessage());
-				showError(R.string.error_when_load_repos);
+				showError(R.string.error_when_load_activities);
 				return;
 			}
 
@@ -219,7 +219,7 @@ public class ActivitiesFragment extends SherlockListFragment {
 				showLoading(false);
 			} else {
 				Log.i(DEBUG_TAG, "failed to load activities");
-				showError(R.string.error_when_load_repos);
+				showError(R.string.error_when_load_activities);
 			}
 		}
 	}
