@@ -43,6 +43,7 @@ public class AccountsActivity extends FragmentActivity {
     private static AccountsActivity accountsActivity;
 
     private ListView accountsView;
+    private Button addAccount;
 
     private AccountManager accountManager;
 
@@ -77,12 +78,15 @@ public class AccountsActivity extends FragmentActivity {
 
         accountManager = new AccountManager(this);
 
-        Button addAccount = new Button(this);
+        addAccount = new Button(this);
         addAccount.setText(R.string.add_account);
+        
         accountsView.addFooterView(addAccount, null, true);
         accountsView.setFooterDividersEnabled(false);
+        
         adapter = new AccountAdapter(this);
         accountsView.setAdapter(adapter);
+        
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
