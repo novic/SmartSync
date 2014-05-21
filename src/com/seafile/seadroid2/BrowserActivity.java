@@ -308,8 +308,9 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		 * Set Drawer Header
 		 */
 		View header = (View) getLayoutInflater().inflate(
-				R.layout.left_drawer_header, null);
+				R.layout.drawer_header, null);
 		TextView tv = (TextView) header.findViewById(R.id.txtHeader);
+		tv.setText(account.getEmail());
 		tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_user, 0, 0, 0);
 		mDrawerList.addHeaderView(header, header, false);
 

@@ -10,20 +10,18 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="15dp"
         android:layout_marginTop="15dp"
-        android:gravity="center"
+        android:gravity="left"
         android:src="@drawable/left_drawer_header" />
 
     <TextView
         android:id="@+id/txtHeader"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true"
         android:background="@color/app_blue"
         android:gravity="center_vertical"
         android:padding="10dp"
         android:text=" Test User"
         android:textColor="#FFFFFF"
-        android:textSize="19dp" />
+        android:textSize="16dp" />
 
 </LinearLayout>
