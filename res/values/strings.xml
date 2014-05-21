@@ -160,5 +160,16 @@
     <string name="no">Нет</string>
     <string name="remember_my_choice">Запомнить мой выбор</string>
     <string name="secured_connection">Защищённое соединение</string>
+    
+    <!-- File action texts for the ActivitiesFragment -->
+    <string name="action_added">Добавлен файл</string>
+    <string name="action_removed">Удалён файл</string>
+    <string name="action_renamed">Переименован файл</string>
+    <string name="action_changed">Изменён файл</string>
+    <string name="action_dir_added">Добавлена</string>
+    <string name="action_dir_removed">Удалена</string>
+    <string name="action_dir_renamed">Переименована</string>
+    <string name="action_dir_changed">Изменена</string>
+    <string name="action_dir">директория</string>
 
 </resources>
