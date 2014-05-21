@@ -21,7 +21,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -78,7 +81,6 @@ import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
 
-@SuppressWarnings("deprecation")
 public class BrowserActivity extends SherlockFragmentActivity implements
 		ReposFragment.OnFileSelectedListener,
 		OnBackStackChangedListener {
@@ -120,6 +122,9 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 	public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
 	public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
 	public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
+	
+	private Drawable oldBackground = null;
+	private int currentColor;
 
 	public DataManager getDataManager() {
 		return dataManager;
@@ -235,7 +240,7 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-		ActionBar actionBar = getSupportActionBar();
+		android.app.ActionBar actionBar = getActionBar();
 		actionBar.setDisplayShowTitleEnabled(false);
 		unsetRefreshing();
 
@@ -325,9 +330,10 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		// enable ActionBar app icon to behave as action to toggle nav drawer
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
-
+		// getSupportActionBar().setIcon(R.drawable.drawer_home_icon);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
+		
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the sliding drawer and the action bar app icon
 		mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
@@ -337,20 +343,27 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		R.string.drawer_close /* "close drawer" description for accessibility */
 		) {
 			public void onDrawerClosed(View view) {
-				getSupportActionBar().setTitle(mTitle);
-				supportInvalidateOptionsMenu(); // creates call to
+				getActionBar().setTitle(mTitle);
+				changeColor(R.color.app_blue);
+				invalidateOptionsMenu(); // creates call to
 												// onPrepareOptionsMenu()
 			}
 
 			public void onDrawerOpened(View drawerView) {
-				getSupportActionBar().setTitle(mDrawerTitle);
-				supportInvalidateOptionsMenu(); // creates call to
+				getActionBar().setTitle(mDrawerTitle);
+				changeColor(R.color.pretty_gray);
+				invalidateOptionsMenu(); // creates call to
 												// onPrepareOptionsMenu()
 			}
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		mDrawerList.setItemChecked(0, true);
 
+		/**
+		 * Set the default ActionBar background color
+		 */
+		changeColor(R.color.app_blue);
+		
 		Intent txIntent = new Intent(this, TransferService.class);
 		startService(txIntent);
 		Log.d(DEBUG_TAG, "start TransferService");
@@ -362,6 +375,37 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 
 		Intent monitorIntent = new Intent(this, FileMonitorService.class);
 		startService(monitorIntent);
+	}
+	
+	private void changeColor(int newColor) {
+
+		Drawable colorDrawable = new ColorDrawable(getResources().getColor(
+				newColor));
+		Drawable bottomDrawable = getResources().getDrawable(
+				R.drawable.actionbar_bottom);
+		LayerDrawable ld = new LayerDrawable(new Drawable[] { colorDrawable,
+				bottomDrawable });
+
+		if (oldBackground == null) {
+
+			getActionBar().setBackgroundDrawable(ld);
+
+		} else {
+
+			TransitionDrawable td = new TransitionDrawable(new Drawable[] {
+					oldBackground, ld });
+
+			getActionBar().setBackgroundDrawable(td);
+
+			td.startTransition(100);
+		}
+		oldBackground = ld;
+
+		// http://stackoverflow.com/questions/11002691/actionbar-setbackgrounddrawable-nulling-background-from-thread-handler
+		getActionBar().setDisplayShowTitleEnabled(false);
+		getActionBar().setDisplayShowTitleEnabled(true);
+
+		currentColor = newColor;
 	}
 
 	private String getCurrentTabName() {
@@ -546,6 +590,13 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		MenuItem menuRefresh = menu.findItem(R.id.refresh);
 		MenuItem menuNewDir = menu.findItem(R.id.newdir);
 		MenuItem menuNewFile = menu.findItem(R.id.newfile);
+		
+		/**
+		 * Set icons for the Menu Items
+		 */
+		menuUpload.setIcon(R.drawable.menu_upload);
+		menuRefresh.setIcon(R.drawable.menu_refresh);
+		//
 
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
