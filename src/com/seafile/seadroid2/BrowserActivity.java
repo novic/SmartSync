@@ -596,13 +596,12 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
-			menuUpload.setVisible(true);
+			menuUpload.setVisible(false);
 			if (navContext.inRepo() && hasRepoWritePermission()) {
 				menuUpload.setEnabled(true);
+				menuUpload.setVisible(true);
 			} else
 				menuUpload.setEnabled(false);
-		} else {
-			menuUpload.setVisible(false);
 		}
 
 		if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
