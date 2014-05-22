@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -36,6 +37,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.ClipboardManager;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.ActionProvider;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -528,7 +531,7 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.browser_menu, menu);
+		inflater.inflate(R.menu.browser_menu, menu);		
 		return true;
 	}
 
@@ -590,13 +593,6 @@ public class BrowserActivity extends SherlockFragmentActivity implements
 		MenuItem menuRefresh = menu.findItem(R.id.refresh);
 		MenuItem menuNewDir = menu.findItem(R.id.newdir);
 		MenuItem menuNewFile = menu.findItem(R.id.newfile);
-		
-		/**
-		 * Set icons for the Menu Items
-		 */
-		menuUpload.setIcon(R.drawable.menu_upload);
-		menuRefresh.setIcon(R.drawable.menu_refresh);
-		//
 
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
