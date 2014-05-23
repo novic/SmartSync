@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.json.JSONException;
@@ -38,54 +40,71 @@ public class SeafActivity implements ActivityItem {
 			StringTokenizer tokens = new StringTokenizer(obj.getString("desc"),
 					" ");
 			String action = tokens.nextToken();
-			String objname = tokens.nextToken();
+			List <String> objname = new ArrayList<String>();
+			
+			/**
+			 * Parse the Object name parts
+			 */
+			while (tokens.hasMoreTokens()) {
+				objname.add(tokens.nextToken());
+			}
+			//
 
 			if (action.equalsIgnoreCase("Added")) {
-				if (objname.equalsIgnoreCase("directory")) {
+				if (objname.get(0).equalsIgnoreCase("directory")) {
 					action = context.getResources().getString(
 							R.string.action_dir_added);
-					objname = context.getResources().getString(
-							R.string.action_dir);
+					objname.set(0, context.getResources().getString(
+							R.string.action_dir) + " ");
 				} else {
 					action = context.getResources().getString(
 							R.string.action_added);
 				}
 
 			} else if (action.equalsIgnoreCase("Removed")) {
-				if (objname.equalsIgnoreCase("directory")) {
+				if (objname.get(0).equalsIgnoreCase("directory")) {
 					action = context.getResources().getString(
 							R.string.action_dir_removed);
-					objname = context.getResources().getString(
-							R.string.action_dir);
+					objname.set(0, context.getResources().getString(
+							R.string.action_dir) + " ");
 				} else {
 					action = context.getResources().getString(
 							R.string.action_removed);
 				}
 
 			} else if (action.equalsIgnoreCase("Renamed")) {
-				if (objname.equalsIgnoreCase("directory")) {
+				if (objname.get(0).equalsIgnoreCase("directory")) {
 					action = context.getResources().getString(
 							R.string.action_dir_renamed);
-					objname = context.getResources().getString(
-							R.string.action_dir);
+					objname.set(0, context.getResources().getString(
+							R.string.action_dir) + " ");
 				} else {
 					action = context.getResources().getString(
 							R.string.action_renamed);
 				}
 
 			} else if (action.equalsIgnoreCase("Changed")) {
-				if (objname.equalsIgnoreCase("directory")) {
+				if (objname.get(0).equalsIgnoreCase("directory")) {
 					action = context.getResources().getString(
 							R.string.action_dir_changed);
-					objname = context.getResources().getString(
-							R.string.action_dir);
+					objname.set(0, context.getResources().getString(
+							R.string.action_dir) + " ");
 				} else {
 					action = context.getResources().getString(
 							R.string.action_changed);
 				}
 			}
-
-			act.description = action + " " + objname;
+			
+			/**
+			 * Compile the Description
+			 */
+			act.description = action + " ";
+			
+			for (int i = 0; i < objname.size(); i++) {
+				act.description = act.description + objname.get(i);
+			}
+			//
+			
 			act.user = obj.getString("nick");
 			long mt = obj.getLong("time");
 			act.mtime = new Date(mt).toLocaleString();
