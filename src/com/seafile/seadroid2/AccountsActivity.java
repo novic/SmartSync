@@ -71,6 +71,12 @@ public class AccountsActivity extends FragmentActivity {
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
+        
+        /**
+         * Hide Actionbar fot this activity
+         */
+        getActionBar().hide();
+        //
 
         accountsActivity = this;
 

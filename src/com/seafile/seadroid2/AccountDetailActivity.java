@@ -49,6 +49,13 @@ public class AccountDetailActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        /**
+         * Hide Actionbar for this activity
+         */
+        getActionBar().hide();
+        //
+        
         setContentView(R.layout.account_detail);
 
         statusView = (TextView) findViewById(R.id.status_view);
